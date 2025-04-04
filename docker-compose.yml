@@ -18,10 +18,8 @@ services:
       - MINIO_BUCKET=chat-bucket
       - SECRET_KEY=79a6befac20fb7573cac9c0fc468db67a0a8e4c2272b83ff92e6fca3a3dd12adb01210743f95d7bcba69072d4fc24b2bc0887279e3e7b9a847409a515ca90ecc902852aed822bfe7ef20b0f49ca76991ba8435493555290ea7d4b9f81f23cdf6f3b61a19020ead803f0c0bd2bb194894e588c2f93592a24722581232ea3449bcf6edf233382c0cebda00992aa22c450a0e960b910f19b3fa88dda1f2ea86f9725af43b44d73be811cf3d200d9650181cc2ce24065234d4ad6876dc0e2e7c960bc2b2eb6ce783f121e95a1fafc24504f829034a7d44a1aa91f257c97da8d70a7ebacfd5ecc391eca481c598bb3e4bc13202979edb82eba74ba699d8780b862228
     depends_on:
-      db:
-        condition: service_healthy
-      minio:
-        condition: service_started
+      - db
+      - minio
 
   db:
     image: postgres:13-alpine
@@ -29,25 +27,8 @@ services:
       - POSTGRES_DB=chat-socket
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1234
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./dump-chat-socket-202504011340.sql:/docker-entrypoint-initdb.d/dump-chat-socket-202504011340.sql
-    command: >
-      bash -c "
-      docker-entrypoint.sh postgres &
-      sleep 5
-      until pg_isready -U postgres; do sleep 1; done
-      psql -U postgres -c 'CREATE SCHEMA IF NOT EXISTS public;'
-      psql -U postgres -f /docker-entrypoint-initdb.d/dump-chat-socket-202504011340.sql
-      wait
-      "
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   minio:
     image: minio/minio
@@ -61,11 +42,6 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
 
   mc:
     image: minio/mc
@@ -85,3 +61,6 @@ services:
 volumes:
   postgres_data:
   minio_data:
+
+
+
