@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.proj.chatapisocket.dto.ChatRoomDto;
 import org.proj.chatapisocket.models.ChatRoom;
 import org.proj.chatapisocket.models.User;
+import org.proj.chatapisocket.repos.ChatRoomRepository;
 import org.proj.chatapisocket.repos.UserRepository;
 import org.proj.chatapisocket.security.jwt.JwtUtil;
 import org.proj.chatapisocket.services.ChatRoomService;
@@ -27,15 +28,27 @@ public class ChatRoomController {
     private UserRepository userRepository;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private ChatRoomRepository chatRoomRepository;
 
     @PostMapping("/group")
     public ChatRoom createGroupChat(@RequestParam String name, @RequestParam Set<Long> memberIds) {
-        return chatRoomService.createGroupChat(name, memberIds);
+        if(!name.isEmpty() && !name.isBlank())
+            return chatRoomService.createGroupChat(name, memberIds);
+        else
+            return null;
     }
 
     @PostMapping("/private")
     public ChatRoom createPrivateChat(@RequestParam String name, @RequestParam Long user1Id, @RequestParam Long user2Id) {
-        return chatRoomService.createPrivateChat(name, user1Id, user2Id);
+        if(!name.isEmpty() && !name.isBlank()) {
+            if (chatRoomRepository.existsPrivateChatBetweenUsers(user1Id, user2Id)) {
+                throw new IllegalStateException("Приватный чат между этими пользователями уже существует");
+            }
+            return chatRoomService.createPrivateChat(name, user1Id, user2Id);
+        }
+        else
+            return null;
     }
 
     @PostMapping("/{chatRoomId}/add-user")
