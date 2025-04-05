@@ -25,7 +25,7 @@ Request body
     "password": "Password1234"
 }
 ```
-Responce
+Response
 ```json
 {
   "token":"new_token"
@@ -41,17 +41,61 @@ Request body
     "password": "Password1234"
 }
 ```
-Responce
+Response
 ```json
 {
   "token":"new_token"
 }
 ```
+#### /auth/check-auth
+* `POST`
+``` json
+Request body
+{
+    "token": "token",
+    "username": "username"
+}
+```
+Response
+```
+  true
+```
+#### /auth/regenerate-token
+
+* `POST`
+``` json
+Request body
+{
+    "token": "token",
+    "username": "username"
+}
+```
+Response
+```json
+{
+  "token":"new_token"
+}
+```
+
 # Создание чатов
 ## /api/chat-rooms
-* `POST` /group?name=MyGroupChat&memberIds=1&memberIds=2&memberIds=3
-  (Создание группового чата)
-* `POST` /private?user1Id=123&user2Id=456 (Создание приватного чата)
+* `POST` /group
+```json
+{
+  "name": "Рабочая группа",
+  "memberIds": [1, 2, 3, 4]
+}
+
+```
+* `POST` /private
+```json
+{
+    "name" : "Name",
+    "user1Id" : 1,
+    "user2Id" : 2
+}
+
+```
 * `POST` /{chatID}/add-user?userId=100 (Добавление пользователя)
 * `GET` /my (Вернет список чатов пользователя)
 # Сбор всех сообщений из чата
