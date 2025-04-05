@@ -34,8 +34,8 @@ public class ChatRoomController {
     }
 
     @PostMapping("/private")
-    public ChatRoom createPrivateChat(@RequestParam Long user1Id, @RequestParam Long user2Id) {
-        return chatRoomService.createPrivateChat(user1Id, user2Id);
+    public ChatRoom createPrivateChat(@RequestParam String name, @RequestParam Long user1Id, @RequestParam Long user2Id) {
+        return chatRoomService.createPrivateChat(name, user1Id, user2Id);
     }
 
     @PostMapping("/{chatRoomId}/add-user")

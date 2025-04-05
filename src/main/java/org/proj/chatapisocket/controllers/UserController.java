@@ -1,5 +1,6 @@
 package org.proj.chatapisocket.controllers;
 
+import org.proj.chatapisocket.dto.UserDto;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.UserRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,9 +21,7 @@ public class UserController {
         this.userRepository = userRepository;
     }
     @GetMapping()
-    public List<User> getUsers() {
-        List<User> users;
-        users = userRepository.findAll();
-        return users;
+    public List<UserDto> getUsers() {
+        return userRepository.findAll().stream().map(u -> new UserDto(u.getId(), u.getUsername())).collect(Collectors.toList());
     }
 }

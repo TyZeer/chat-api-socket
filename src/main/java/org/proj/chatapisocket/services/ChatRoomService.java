@@ -37,9 +37,9 @@ public class ChatRoomService {
         return chatRoomRepository.save(chatRoom);
     }
 
-    public ChatRoom createPrivateChat(Long user1Id, Long user2Id) {
+    public ChatRoom createPrivateChat(String name,Long user1Id, Long user2Id) {
         ChatRoom chatRoom = new ChatRoom();
-        chatRoom.setName("Private Chat");
+        chatRoom.setName(name);
         chatRoom.setGroup(false);
 
         User user1 = userRepository.findById(user1Id).orElseThrow(() -> new RuntimeException("User not found"));
