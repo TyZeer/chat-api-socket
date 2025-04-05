@@ -37,18 +37,26 @@ public class ChatRoomService {
         return chatRoomRepository.save(chatRoom);
     }
 
-    public ChatRoom createPrivateChat(String name,Long user1Id, Long user2Id) {
+    public ChatRoom createPrivateChat(String name, Long user1Id, Long user2Id) {
+        Long smallerId = Math.min(user1Id, user2Id);
+        Long largerId = Math.max(user1Id, user2Id);
+
+        boolean chatExists = chatRoomRepository.existsPrivateChatBetweenUsers(smallerId, largerId);
+
+        if (chatExists) {
+            throw new IllegalStateException("Приватный чат между этими пользователями уже существует");
+        }
+
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setName(name);
-        chatRoom.setGroup(false);
 
-        User user1 = userRepository.findById(user1Id).orElseThrow(() -> new RuntimeException("User not found"));
-        User user2 = userRepository.findById(user2Id).orElseThrow(() -> new RuntimeException("User not found"));
+        User user1 = userRepository.findById(smallerId)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь с ID " + smallerId + " не найден"));
+        User user2 = userRepository.findById(largerId)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь с ID " + largerId + " не найден"));
 
-        Set<User> members = new HashSet<>();
-        members.add(user1);
-        members.add(user2);
-        chatRoom.setMembers(members);
+        chatRoom.getMembers().add(user1);
+        chatRoom.getMembers().add(user2);
 
         return chatRoomRepository.save(chatRoom);
     }

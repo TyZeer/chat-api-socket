@@ -2,15 +2,22 @@ package org.proj.chatapisocket.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.proj.chatapisocket.dto.ChatRoomDto;
+import org.proj.chatapisocket.dto.CreateGroupChatDto;
+import org.proj.chatapisocket.dto.CreatePrivateChatDto;
 import org.proj.chatapisocket.models.ChatRoom;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.ChatRoomRepository;
 import org.proj.chatapisocket.repos.UserRepository;
 import org.proj.chatapisocket.security.jwt.JwtUtil;
 import org.proj.chatapisocket.services.ChatRoomService;
+import org.simpleframework.xml.core.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.header.Header;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Enumeration;
@@ -28,27 +35,30 @@ public class ChatRoomController {
     private UserRepository userRepository;
     @Autowired
     private JwtUtil jwtUtil;
-    @Autowired
-    private ChatRoomRepository chatRoomRepository;
+
 
     @PostMapping("/group")
-    public ChatRoom createGroupChat(@RequestParam String name, @RequestParam Set<Long> memberIds) {
-        if(!name.isEmpty() && !name.isBlank())
-            return chatRoomService.createGroupChat(name, memberIds);
-        else
-            return null;
+    public ResponseEntity<?> createGroupChat(@Valid @RequestBody CreateGroupChatDto dto) {
+        try {
+            chatRoomService.createGroupChat(dto.getName(), dto.getMemberIds());
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/private")
-    public ChatRoom createPrivateChat(@RequestParam String name, @RequestParam Long user1Id, @RequestParam Long user2Id) {
-        if(!name.isEmpty() && !name.isBlank()) {
-            if (chatRoomRepository.existsPrivateChatBetweenUsers(user1Id, user2Id)) {
-                throw new IllegalStateException("Приватный чат между этими пользователями уже существует");
-            }
-            return chatRoomService.createPrivateChat(name, user1Id, user2Id);
+    public ResponseEntity<?> createPrivateChat(@Validate @RequestBody CreatePrivateChatDto dto) {
+        try {
+            chatRoomService.createPrivateChat(
+                    dto.getName(),
+                    dto.getUser1Id(),
+                    dto.getUser2Id()
+            );
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        else
-            return null;
     }
 
     @PostMapping("/{chatRoomId}/add-user")

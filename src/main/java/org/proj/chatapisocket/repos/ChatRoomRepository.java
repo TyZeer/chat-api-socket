@@ -17,7 +17,10 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query("SELECT COUNT(c) > 0 FROM ChatRoom c " +
             "WHERE c.isGroup = false " +
-            "AND ((:user1Id MEMBER OF c.members AND :user2Id MEMBER OF c.members))")
+            "AND ( " +
+            "   (SELECT COUNT(m) FROM c.members m WHERE m.id IN (:user1Id, :user2Id)) = 2 " +
+            "   AND SIZE(c.members) = 2 " +
+            ")")
     boolean existsPrivateChatBetweenUsers(@Param("user1Id") Long user1Id,
                                           @Param("user2Id") Long user2Id);
 }
