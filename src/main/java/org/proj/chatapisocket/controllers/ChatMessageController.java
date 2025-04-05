@@ -1,5 +1,6 @@
 package org.proj.chatapisocket.controllers;
 
+import org.proj.chatapisocket.dto.ChatMessageDto;
 import org.proj.chatapisocket.models.ChatMessage;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.services.ChatMessageService;
@@ -21,7 +22,7 @@ public class ChatMessageController {
     }
 
     @GetMapping("/{chatRoomId}")
-    public List<ChatMessage> getMessagesByChatRoomId(@PathVariable Long chatRoomId) {
+    public List<ChatMessageDto> getMessagesByChatRoomId(@PathVariable Long chatRoomId) {
         return chatMessageService.getMessagesByChatRoomId(chatRoomId);
     }
 }

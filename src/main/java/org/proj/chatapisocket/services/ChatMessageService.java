@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.proj.chatapisocket.dto.ChatMessageDto;
+import org.proj.chatapisocket.dto.UserDto;
 import org.proj.chatapisocket.models.ChatMessage;
 import org.proj.chatapisocket.models.ChatRoom;
 import org.proj.chatapisocket.models.User;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatMessageService {
@@ -38,13 +41,30 @@ public class ChatMessageService {
         message.setContent(content);
         message.setFileUrl(fileUrl);
         message.setTimestamp(LocalDateTime.now());
-       // ChatRoom roomChat = sender.getChatRooms().stream().filter(room -> room.getId().equals(chatRoomId)).findFirst().orElseThrow(() -> new RuntimeException("ChatRoom not found"));
         message.setChatRoom(chatRoom);
         entityManager.persist(message);
         return message;
     }
 
-    public List<ChatMessage> getMessagesByChatRoomId(Long chatRoomId) {
-        return chatMessageRepository.findByChatRoomId(chatRoomId);
+    public List<ChatMessageDto> getMessagesByChatRoomId(Long chatRoomId) {
+        List<ChatMessage> messages = chatMessageRepository.findByChatRoomId(chatRoomId);
+        return messages.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private ChatMessageDto convertToDto(ChatMessage message) {
+        UserDto userDto = new UserDto(
+                message.getSender().getId(),
+                message.getSender().getUsername()
+        );
+
+        return new ChatMessageDto(
+                message.getId(),
+                userDto,
+                message.getContent(),
+                message.getFileUrl(),
+                message.getTimestamp()
+        );
     }
 }
