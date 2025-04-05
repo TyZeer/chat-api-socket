@@ -47,16 +47,17 @@ services:
     image: minio/mc
     depends_on:
       minio:
-        condition: service_started
+          condition: service_started
     entrypoint: >
-      /bin/sh -c "
-      until (/usr/bin/mc config host add minio http://minio:9000 minioadmin minioadmin) do echo '...waiting...' && sleep 1; done;
-      /usr/bin/mc mb minio/chat-bucket;
-      /usr/bin/mc policy set public minio/chat-bucket;
-      /usr/bin/mc admin user add minio Tyzer 12345678;
-      /usr/bin/mc admin policy set minio readwrite user=Tyzer;
-      exit 0;
-      "
+        /bin/sh -c "
+        until (/usr/bin/mc config host add minio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD) do echo '...waiting...' && sleep 1; done;
+        /usr/bin/mc mb minio/chat-bucket;
+        /usr/bin/mc policy set public minio/chat-bucket;
+        /usr/bin/mc admin user add minio Tyzer 12345678;
+        /usr/bin/mc admin policy create minio readwrite file=/tmp/readwrite.json;
+        /usr/bin/mc admin policy attach minio readwrite --user=Tyzer;
+        exit 0;
+        "
 
 volumes:
   postgres_data:

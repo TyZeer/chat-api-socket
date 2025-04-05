@@ -20,7 +20,7 @@ public class UserController {
     }
     @GetMapping()
     public List<User> getUsers() {
-        List<User> users = new ArrayList<User>();
+        List<User> users;
         users = userRepository.findAll();
         return users;
     }
