@@ -100,6 +100,27 @@ Response
 * `GET` /my (Вернет список чатов пользователя)
 # Сбор всех сообщений из чата
 * `GET` /api/chat-messages/{chatRoomId} (Вернет список всех сообщений в чате)
+* `DELETE` /api/chat-messages/{chatMessageId} (Удаление сообщения из чата (Может только отправитель))
+* `PUT` /api/chat-messages/{chatMessageId} (Редактирование сообщения)
+```json
+Request body
+{
+  "content" : "New message content"
+}
+```
+```json
+Response
+{
+  "id": 2,
+  "sender": {
+    "id": 1,
+    "username": "Tyzer"
+  },
+  "content": "new_content",
+  "fileUrl": "http://localhost:9000/chat-bucket/f6b6e445-c107-4e05-bc85-74269200c647-test-photo.jpg",
+  "timestamp": "2025-03-29T11:43:59.391122"
+}
+```
 # Работа с файлами
 ## /api/files Общее начало
 * `POST` /upload (Запрос выглядит как-то так Отправляется перед отправкой сообщения с файлом, для сохранения его в бд)
