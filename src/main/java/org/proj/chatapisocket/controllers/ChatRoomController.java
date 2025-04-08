@@ -38,7 +38,7 @@ public class ChatRoomController {
 
 
     @PostMapping("/group")
-    public ResponseEntity<?> createGroupChat(@Valid @RequestBody CreateGroupChatDto dto) {
+    public ResponseEntity<?> createGroupChat(@RequestBody CreateGroupChatDto dto) {
         try {
             chatRoomService.createGroupChat(dto.getName(), dto.getMemberIds());
             return new ResponseEntity<Void>(HttpStatus.OK);
@@ -48,7 +48,7 @@ public class ChatRoomController {
     }
 
     @PostMapping("/private")
-    public ResponseEntity<?> createPrivateChat(@Validate @RequestBody CreatePrivateChatDto dto) {
+    public ResponseEntity<?> createPrivateChat(@RequestBody CreatePrivateChatDto dto) {
         try {
             chatRoomService.createPrivateChat(
                     dto.getName(),

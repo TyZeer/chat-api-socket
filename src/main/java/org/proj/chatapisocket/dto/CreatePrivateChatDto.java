@@ -15,13 +15,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreatePrivateChatDto {
     @JsonProperty("name")
-    @NotBlank(message = "Название чата не может быть пустым")
-    @NotEmpty(message = "Название чата не может быть пустым")
     private String name;
     @JsonProperty("user1Id")
-    @NotBlank(message = "ID не может быть пустым")
     private Long user1Id;
     @JsonProperty("user2Id")
-    @NotBlank(message = "ID не может быть пустым")
     private Long user2Id;
 }
