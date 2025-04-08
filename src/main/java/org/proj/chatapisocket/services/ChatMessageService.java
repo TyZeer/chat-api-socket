@@ -53,7 +53,7 @@ public class ChatMessageService {
                 .collect(Collectors.toList());
     }
 
-    private ChatMessageDto convertToDto(ChatMessage message) {
+    public ChatMessageDto convertToDto(ChatMessage message) {
         UserDto userDto = new UserDto(
                 message.getSender().getId(),
                 message.getSender().getUsername()
@@ -66,5 +66,32 @@ public class ChatMessageService {
                 message.getFileUrl(),
                 message.getTimestamp()
         );
+    }
+
+    @Transactional
+    public ChatMessage updateMessage(Long messageId, String newContent, User currentUser) {
+        ChatMessage message = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Сообщение не найдено"));
+
+        // Проверяем, что текущий пользователь - автор сообщения
+        if (!message.getSender().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Вы не можете редактировать это сообщение");
+        }
+
+        message.setContent(newContent);
+        return chatMessageRepository.save(message);
+    }
+
+    @Transactional
+    public void deleteMessage(Long messageId, User currentUser) {
+        ChatMessage message = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Сообщение не найдено"));
+
+        // Проверяем, что текущий пользователь - автор сообщения
+        if (!message.getSender().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Вы не можете удалить это сообщение");
+        }
+
+        chatMessageRepository.delete(message);
     }
 }
