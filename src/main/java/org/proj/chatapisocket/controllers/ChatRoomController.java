@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -48,8 +49,30 @@ public class ChatRoomController {
     }
 
     @PostMapping("/private")
-    public ResponseEntity<?> createPrivateChat(@RequestBody CreatePrivateChatDto dto) {
+    public ResponseEntity<?> createPrivateChat(@RequestBody CreatePrivateChatDto dto ,HttpServletRequest request) {
         try {
+
+            if (Objects.equals(dto.getUser1Id(), dto.getUser2Id())) {
+                throw new IllegalArgumentException("Участники не уникальны");
+            }
+
+            if (dto.getUser1Id() == null || dto.getUser2Id() == null) {
+                throw new IllegalArgumentException("Один из айди быль null");
+            }
+            String token = request.getHeader("Authorization").substring(7);
+
+            String requesterUsername = jwtUtil.extractUserName(token);
+
+            Long requesterId = userRepository.findByUsername(requesterUsername)
+                    .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"))
+                    .getId();
+            List<Long> ids = List.of(dto.getUser1Id(), dto.getUser2Id());
+
+            if (!ids.contains(requesterId)) {
+                throw new IllegalArgumentException("Создатель чата должен быть среди участников");
+            }
+
+
             chatRoomService.createPrivateChat(
                     dto.getName(),
                     dto.getUser1Id(),

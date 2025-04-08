@@ -31,11 +31,11 @@ public class ChatMessageService {
     private ChatRoomRepository chatRoomRepository;
     @Transactional
     public ChatMessage sendMessage(Long chatRoomId, User sender, String content, String fileUrl) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("ChatRoom not found"));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("Комната не найдена"));
         ChatMessage message = new ChatMessage();
         User managedSender = entityManager.find(User.class, sender.getId());
         if (managedSender == null) {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException("Пользователь не найден");
         }
         message.setSender(managedSender);
         message.setContent(content);

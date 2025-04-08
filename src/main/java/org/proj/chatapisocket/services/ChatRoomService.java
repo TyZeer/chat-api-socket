@@ -62,8 +62,8 @@ public class ChatRoomService {
     }
 
     public ChatRoom addUserToGroupChat(Long chatRoomId, Long userId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("ChatRoom not found"));
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("Комната не найдена"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
         chatRoom.getMembers().add(user);
         return chatRoomRepository.save(chatRoom);

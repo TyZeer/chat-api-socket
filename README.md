@@ -15,7 +15,7 @@ docker compose up -d
 # API
 ## АВТОРИЗАЦИЯ
 #### /auth/sign-up
-
+,
 * `POST`
 ``` json
 Request body
@@ -91,8 +91,8 @@ Response
 ```json
 {
     "name" : "Name",
-    "user1Id" : 1,
-    "user2Id" : 2
+    "user1Id" : "1",
+    "user2Id" : "2"
 }
 
 ```
