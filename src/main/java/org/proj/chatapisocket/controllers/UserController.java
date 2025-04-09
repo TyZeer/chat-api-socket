@@ -3,6 +3,7 @@ package org.proj.chatapisocket.controllers;
 import org.proj.chatapisocket.dto.UserDto;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.UserRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +22,11 @@ public class UserController {
         this.userRepository = userRepository;
     }
     @GetMapping()
-    public List<UserDto> getUsers() {
-        return userRepository.findAll().stream().map(u -> new UserDto(u.getId(), u.getUsername())).collect(Collectors.toList());
+    public List<UserDto> getUsers(@AuthenticationPrincipal User currentUser) {
+        Long userId = currentUser.getId();
+        return userRepository.findAll().stream()
+                .filter(u -> !u.getId().equals(userId))
+                .map(u -> new UserDto(u.getId(), u.getUsername()))
+                .collect(Collectors.toList());
     }
 }

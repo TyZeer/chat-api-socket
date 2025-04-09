@@ -4,15 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.proj.chatapisocket.dto.CheckAuth;
-import org.proj.chatapisocket.dto.JwtAuthenticationResponse;
-import org.proj.chatapisocket.dto.SignInRequest;
-import org.proj.chatapisocket.dto.SignUpRequest;
+import org.proj.chatapisocket.dto.*;
+import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.security.jwt.JwtUtil;
 import org.proj.chatapisocket.services.AuthenticationService;
 import org.proj.chatapisocket.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,5 +68,9 @@ public class AuthController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body("there was a problem with username or token");
         }
+    }
+    @PostMapping("who-am-i")
+    public ResponseEntity<?> whoAmI(@AuthenticationPrincipal User currentUser){
+        return  ResponseEntity.ok(new UserDto(currentUser.getId(), currentUser.getUsername()));
     }
 }

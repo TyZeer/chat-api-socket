@@ -76,6 +76,14 @@ Response
   "token":"new_token"
 }
 ```
+* `POST` /auth/who-am-i (Только для авторизованных пользователей)
+```json
+Response
+{
+  "id": 1,
+  "username": "Tyzer"
+}
+```
 
 # Создание чатов
 ## /api/chat-rooms
