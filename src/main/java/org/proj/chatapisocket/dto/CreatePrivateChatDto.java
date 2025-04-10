@@ -16,8 +16,6 @@ import lombok.NoArgsConstructor;
 public class CreatePrivateChatDto {
     @JsonProperty("name")
     private String name;
-    @JsonProperty("user1Id")
-    private Long user1Id;
-    @JsonProperty("user2Id")
-    private Long user2Id;
+    @JsonProperty("user_id")
+    private Long userId;
 }

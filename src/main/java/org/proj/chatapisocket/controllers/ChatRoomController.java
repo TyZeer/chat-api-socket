@@ -16,6 +16,7 @@ import org.simpleframework.xml.core.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.header.Header;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,9 +40,11 @@ public class ChatRoomController {
 
 
     @PostMapping("/group")
-    public ResponseEntity<?> createGroupChat(@RequestBody CreateGroupChatDto dto) {
+    public ResponseEntity<?> createGroupChat(@RequestBody CreateGroupChatDto dto, @AuthenticationPrincipal User currentUser) {
         try {
-            chatRoomService.createGroupChat(dto.getName(), dto.getMemberIds());
+            Set<Long> ids = dto.getMemberIds();
+            ids.add(currentUser.getId());
+            chatRoomService.createGroupChat(dto.getName(), ids);
             return new ResponseEntity<Void>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -49,34 +52,21 @@ public class ChatRoomController {
     }
 
     @PostMapping("/private")
-    public ResponseEntity<?> createPrivateChat(@RequestBody CreatePrivateChatDto dto ,HttpServletRequest request) {
+    public ResponseEntity<?> createPrivateChat(@RequestBody CreatePrivateChatDto dto ,@AuthenticationPrincipal User currentUser) {
         try {
-
-            if (Objects.equals(dto.getUser1Id(), dto.getUser2Id())) {
-                throw new IllegalArgumentException("Участники не уникальны");
+//            List<Long> ids = List.of(dto.getUser1Id(), dto.getUser2Id());
+//
+//            if (!ids.contains(requesterId)) {
+//                throw new IllegalArgumentException("Создатель чата должен быть среди участников");
+//            }
+            if(Objects.equals(currentUser.getId(), dto.getUserId())){
+                throw new IllegalArgumentException("Нельзя добавить самого себя");
             }
-
-            if (dto.getUser1Id() == null || dto.getUser2Id() == null) {
-                throw new IllegalArgumentException("Один из айди быль null");
-            }
-            String token = request.getHeader("Authorization").substring(7);
-
-            String requesterUsername = jwtUtil.extractUserName(token);
-
-            Long requesterId = userRepository.findByUsername(requesterUsername)
-                    .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"))
-                    .getId();
-            List<Long> ids = List.of(dto.getUser1Id(), dto.getUser2Id());
-
-            if (!ids.contains(requesterId)) {
-                throw new IllegalArgumentException("Создатель чата должен быть среди участников");
-            }
-
 
             chatRoomService.createPrivateChat(
                     dto.getName(),
-                    dto.getUser1Id(),
-                    dto.getUser2Id()
+                    currentUser.getId(),
+                    dto.getUserId()
             );
             return new ResponseEntity<Void>(HttpStatus.OK);
         } catch (IllegalStateException | IllegalArgumentException e) {

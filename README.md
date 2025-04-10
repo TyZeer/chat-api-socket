@@ -87,7 +87,7 @@ Response
 
 # Создание чатов
 ## /api/chat-rooms
-* `POST` /group
+* `POST` /group (Свой id не надо указывать)
 ```json
 {
   "name": "Рабочая группа",
@@ -95,12 +95,11 @@ Response
 }
 
 ```
-* `POST` /private
+* `POST` /private (Свой id не надо указывать)
 ```json
 {
     "name" : "Name",
-    "user1Id" : "1",
-    "user2Id" : "2"
+    "user_id" : "1"
 }
 
 ```
@@ -181,58 +180,57 @@ const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
 
-const socket = new WebSocket("ws://localhost:8080/ws");
+const socket = new WebSocket("ws:localhost:8081/ws");
 const stompClient = Stomp.over(socket);
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-const jwtToken = "eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwiaWQiOjEsImVtYWlsIjoiZW1haWxAZ21haWwuY29tIiwic3ViIjoiVHl6ZXIiLCJpYXQiOjE3NDM4NTg0NDksImV4cCI6MTc0NDcyMjQ0OX0.yEVVSyLJZyRsApX-h7jEYIDK6KNbghx06mKSj0j7HQr9V-6qb7nUkUbeB0S8LQ0iT4dK8cux7rMEomlLYWydGQ";
+const jwtToken = "eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwiaWQiOjEsImVtYWlsIjoiZW1haWxAZ21haWwuY29tIiwic3ViIjoiVHl6ZXIiLCJpYXQiOjE3NDQzMTE4NzQsImV4cCI6MTc0NTE3NTg3NH0.uWI0TIgCUtXqbQeP4J3czGF-i5xitjsymimpnZdUM9BPcKeltDQkgtgZQrXkXDk4w4ZciMywXeITLnHw3pHPog";
 const chatId = 1;
-const sender = "Tyzer";
+const sender = "test1";
 
 // Указанный тобой путь к файлу
 const filePath = "C:\\Users\\Dmitriy Pavlov\\OneDrive\\Рабочий стол\\test-photo.jpg";
 
 // Функция загрузки файла в MinIO через API
-async function uploadFile(filePath) {
-    const formData = new FormData();
-    formData.append("file", fs.createReadStream(filePath));
+// async function uploadFile(filePath) {
+//     const formData = new FormData();
+//     formData.append("file", fs.createReadStream(filePath));
 
-    try {
-        const response = await axios.post("http://localhost:8080/api/files/upload", formData, {
-            headers: {
-                ...formData.getHeaders(),
-                Authorization: `Bearer ${jwtToken}` // Добавляем токен в заголовки
-            },
-        });
-        return response.data; // URL загруженного файла
-    } catch (error) {
-        console.error("Ошибка загрузки файла:", error.response?.data || error.message);
-        return null;
-    }
-}
+//     try {
+//         const response = await axios.post("http://localhost:8080/api/files/upload", formData, {
+//             headers: {
+//                 ...formData.getHeaders(),
+//                 Authorization: `Bearer ${jwtToken}` // Добавляем токен в заголовки
+//             },
+//         });
+//         return response.data; // URL загруженного файла
+//     } catch (error) {
+//         console.error("Ошибка загрузки файла:", error.response?.data || error.message);
+//         return null;
+//     }
+// }
 
 stompClient.connect({ Authorization: `Bearer ${jwtToken}` }, async function (frame) {
     console.log("Connected to WebSocket");
 
     // Загружаем фото и получаем ссылку
-    const fileUrl = await uploadFile(filePath);
-    if (!fileUrl) {
-        console.error("Не удалось загрузить файл, сообщение не отправлено");
-        return;
-    }
+    // const fileUrl = await uploadFile(filePath);
+    // if (!fileUrl) {
+    //     console.error("Не удалось загрузить файл, сообщение не отправлено");
+    //     return;
+    // }
 
     let message = {
-        sender: sender,
-        content: "Вот фото!",
-        fileUrl: fileUrl, // Используем загруженный URL
+        content: "Ахуеееееееееееееееееееть как же тут дохуя текста, как же меня это все заебало, простоо невозможно блять, эти ебучие слова писать пДЫВЛраФХЩШГГЫВРТЪЩ0РОШФВЫАЭШЩЗО",
+        fileUrl: "", // Используем загруженный URL
         chatId: chatId
     };
 
     await delay(2000);
 
     stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
-    console.log("Message sent with image:", fileUrl);
+    console.log("Message sent with image:", "fileUrl");
 });
 
 stompClient.onmessage = function (message) {
@@ -246,6 +244,7 @@ stompClient.onerror = function (error) {
 stompClient.onclose = function () {
     console.log("Connection closed");
 };
+
 
 ```
 
