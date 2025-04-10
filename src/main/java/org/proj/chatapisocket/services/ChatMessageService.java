@@ -87,7 +87,6 @@ public class ChatMessageService {
         ChatMessage message = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Сообщение не найдено"));
 
-        // Проверяем, что текущий пользователь - автор сообщения
         if (!message.getSender().getId().equals(currentUser.getId())) {
             throw new RuntimeException("Вы не можете удалить это сообщение");
         }
