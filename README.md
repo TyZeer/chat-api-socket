@@ -106,8 +106,9 @@ Response
 ```
 * `POST` /{chatID}/add-user?userId=100 (Добавление пользователя)
 * `GET` /my (Вернет список чатов пользователя)
-# Сбор всех сообщений из чата
-* `GET` /api/chat-messages/{chatRoomId} (Вернет список всех сообщений в чате)
+## Сбор всех сообщений из чата й c примером запроса с пагинацией сообщений и сортировкой
+* `GET` /api/chat-messages/{chatRoomId}?page (api/chat-messages/1?page=0&size=20&sort=timestamp,desc)
+## Взаимодействие с сообщениями отредактировать и удалить
 * `DELETE` /api/chat-messages/{chatMessageId} (Удаление сообщения из чата (Может только отправитель))
 * `PUT` /api/chat-messages/{chatMessageId} (Редактирование сообщения)
 ```json

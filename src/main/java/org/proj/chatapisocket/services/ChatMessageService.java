@@ -12,6 +12,8 @@ import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.ChatMessageRepository;
 import org.proj.chatapisocket.repos.ChatRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -46,11 +48,9 @@ public class ChatMessageService {
         return message;
     }
 
-    public List<ChatMessageDto> getMessagesByChatRoomId(Long chatRoomId) {
-        List<ChatMessage> messages = chatMessageRepository.findByChatRoomId(chatRoomId);
-        return messages.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public Page<ChatMessageDto> getMessagesByChatRoomId(Long chatRoomId, Pageable pageable) {
+        Page<ChatMessage> messages = chatMessageRepository.findByChatRoomId(chatRoomId, pageable);
+        return messages.map(this::convertToDto);
     }
 
     public ChatMessageDto convertToDto(ChatMessage message) {

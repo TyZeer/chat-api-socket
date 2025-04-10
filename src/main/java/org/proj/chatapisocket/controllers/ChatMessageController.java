@@ -6,6 +6,10 @@ import org.proj.chatapisocket.models.ChatMessage;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.services.ChatMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +29,16 @@ public class ChatMessageController {
     }
 
     @GetMapping("/{chatRoomId}")
-    public List<ChatMessageDto> getMessagesByChatRoomId(@PathVariable Long chatRoomId) {
-        return chatMessageService.getMessagesByChatRoomId(chatRoomId);
+    public ResponseEntity<Page<ChatMessageDto>> getMessagesByChatRoomId(
+            @PathVariable Long chatRoomId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "timestamp,desc") String[] sort) {
+
+        Sort orders = Sort.by(sort[0].split(","));
+        Pageable pageable = PageRequest.of(page, size, orders);
+        Page<ChatMessageDto> result = chatMessageService.getMessagesByChatRoomId(chatRoomId, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{messageId}")
