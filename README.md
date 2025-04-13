@@ -146,27 +146,10 @@ fetch('/api/files/upload', {
 ```
 Response
 ```string
-http://minio-server:9000/chat-bucket/filename.jpg
+filename.jpg
 ```
-* `POST` /{filename} (Пример скрипта для получения файла Используется для отображения/скачивания файла из чата)
-```js
-fetch('/имя-файла.ext')
-  .then(response => {
-    if (!response.ok) throw new Error('File not found');
-    return response.blob(); // или .text() для текстовых файлов
-  })
-  .then(blob => {
-    // Обработка файла
-    const url = URL.createObjectURL(blob);
-    window.open(url); // Открыть в новой вкладке
-    // или скачать:
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'filename.ext';
-    a.click();
-  })
-  .catch(error => console.error('Error:', error));
-```
+* `GET` /{filename} (Вернет готовую ссылку на скачивание проекта)
+
 ## Получение списка пользователей
 * `GET` /api/users (Вернет список пользователей)
 

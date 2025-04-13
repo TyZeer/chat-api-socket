@@ -20,18 +20,27 @@ public class FileUploadController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileUrl = minioService.uploadFile(file);
-        return ResponseEntity.ok(fileUrl);
+        String[] mass = fileUrl.split("/");
+        return ResponseEntity.ok(mass[mass.length-1]);
     }
+//    @GetMapping("/{filename:.+}")
+//    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+//        Resource resource = minioService.getFile(filename);
+//        String contentType = minioService.getContentType(filename);
+//
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.parseMediaType(contentType))
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+//                .body(resource);
+//    }
     @GetMapping("/{filename:.+}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-        Resource resource = minioService.getFile(filename);
-        String contentType = minioService.getContentType(filename);
+    public ResponseEntity<?> getFileUrl(@PathVariable String filename){
+        try {
+            return ResponseEntity.ok(minioService.generatePresignedUrl(filename));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
-                .body(resource);
     }
-
 }
 

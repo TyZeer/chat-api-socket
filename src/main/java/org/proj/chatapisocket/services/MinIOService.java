@@ -1,9 +1,7 @@
 package org.proj.chatapisocket.services;
 
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.errors.MinioException;
+import io.minio.*;
+import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -47,6 +45,7 @@ public class MinIOService {
             throw new RuntimeException("Ошибка загрузки файла в MinIO", e);
         }
     }
+
     public Resource getFile(String filename) {
         try {
             InputStream inputStream = minioClient.getObject(
@@ -60,6 +59,7 @@ public class MinIOService {
             throw new RuntimeException("Ошибка при получении файла из MinIO", e);
         }
     }
+
     public String getContentType(String filename) {
         String ext = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
         return switch (ext) {
@@ -71,5 +71,33 @@ public class MinIOService {
         };
     }
 
+    public String generatePresignedUrl(String fileName) {
+        try {
+            // Проверка на существование файла
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .build()
+            );
 
+            // Генерация временной ссылки
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .expiry(60 * 60) // 1 час
+                            .build()
+            );
+        } catch (io.minio.errors.ErrorResponseException e) {
+            if (e.errorResponse().code().equals("NoSuchKey")) {
+                throw new RuntimeException("Файл не найден в бакете: " + fileName);
+            }
+            throw new RuntimeException("Ошибка при проверке существования файла", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Не удалось сгенерировать ссылку на файл", e);
+        }
+    }
 }
+
