@@ -1,6 +1,7 @@
 package org.proj.chatapisocket.services;
 
 import lombok.RequiredArgsConstructor;
+import org.proj.chatapisocket.dto.UserDto;
 import org.proj.chatapisocket.models.Role;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.UserRepository;
@@ -8,6 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -85,4 +88,8 @@ public class UserService {
         user.setRole(Role.ROLE_ADMIN);
         save(user);
     }
+
+//    public List<UserDto> getUsersByChatRoom(Long chatRoomId){
+//
+//    }
 }

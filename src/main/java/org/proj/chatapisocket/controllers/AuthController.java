@@ -48,8 +48,13 @@ public class AuthController {
 
     @Operation(summary = "Авторизация пользователя")
     @PostMapping("/sign-in")
-    public JwtAuthenticationResponse signIn(@Valid @RequestBody SignInRequest request) {
-        return authenticationService.signIn(request);
+    public ResponseEntity<?> signIn(@Valid @RequestBody SignInRequest request) {
+        try {
+            return ResponseEntity.ok(authenticationService.signIn(request));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @PostMapping("/check-auth")
@@ -70,10 +75,10 @@ public class AuthController {
                 String token = jwtUtil.generateToken(userDetails);
                 return ResponseEntity.ok(new JwtAuthenticationResponse(token));
             } else {
-                return ResponseEntity.badRequest().body("token was already expired");
+                return ResponseEntity.badRequest().body("Токен уже истек");
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("there was a problem with username or token");
+            return ResponseEntity.badRequest().body("Была проблема с токеном или юзернеймом");
         }
     }
 

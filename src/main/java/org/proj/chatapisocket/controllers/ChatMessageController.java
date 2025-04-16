@@ -35,7 +35,8 @@ public class ChatMessageController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "timestamp,desc") String[] sort) {
 
-        Sort orders = Sort.by(sort[0].split(","));
+        String[] sortParams = sort[0].split(",");
+        Sort orders = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
         Pageable pageable = PageRequest.of(page, size, orders);
         Page<ChatMessageDto> result = chatMessageService.getMessagesByChatRoomId(chatRoomId, pageable);
         return ResponseEntity.ok(result);

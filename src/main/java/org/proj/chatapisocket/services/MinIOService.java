@@ -73,7 +73,7 @@ public class MinIOService {
 
     public String generatePresignedUrl(String fileName) {
         try {
-            // Проверка на существование файла
+            // Чекаем на файлик
             minioClient.statObject(
                     StatObjectArgs.builder()
                             .bucket(bucketName)
@@ -81,13 +81,13 @@ public class MinIOService {
                             .build()
             );
 
-            // Генерация временной ссылки
+            // Создаем ссылочку на часочек
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(bucketName)
                             .object(fileName)
-                            .expiry(60 * 60) // 1 час
+                            .expiry(60 * 60)
                             .build()
             );
         } catch (io.minio.errors.ErrorResponseException e) {

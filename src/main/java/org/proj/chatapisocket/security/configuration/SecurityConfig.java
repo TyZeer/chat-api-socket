@@ -43,11 +43,6 @@ public class SecurityConfig {
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/auth/**").permitAll()
-//                        .requestMatchers("/ws/**").permitAll()
-//                        .anyRequest().authenticated()
-//                )
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**", "/ws/**").permitAll()
                         .requestMatchers("/ws/**", "/app/**", "/topic/**").permitAll()

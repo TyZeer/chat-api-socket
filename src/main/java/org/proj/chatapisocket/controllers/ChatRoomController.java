@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.proj.chatapisocket.dto.ChatRoomDto;
 import org.proj.chatapisocket.dto.CreateGroupChatDto;
 import org.proj.chatapisocket.dto.CreatePrivateChatDto;
+import org.proj.chatapisocket.dto.UserDto;
 import org.proj.chatapisocket.models.ChatRoom;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.ChatRoomRepository;
@@ -54,11 +55,7 @@ public class ChatRoomController {
     @PostMapping("/private")
     public ResponseEntity<?> createPrivateChat(@RequestBody CreatePrivateChatDto dto ,@AuthenticationPrincipal User currentUser) {
         try {
-//            List<Long> ids = List.of(dto.getUser1Id(), dto.getUser2Id());
-//
-//            if (!ids.contains(requesterId)) {
-//                throw new IllegalArgumentException("Создатель чата должен быть среди участников");
-//            }
+
             if(Objects.equals(currentUser.getId(), dto.getUserId())){
                 throw new IllegalArgumentException("Нельзя добавить самого себя");
             }
@@ -95,4 +92,8 @@ public class ChatRoomController {
         }
         return null;
     }
+//    @GetMapping("/{chatRoom}/users")
+//    public List<UserDto> getUsersByChat(@PathVariable Long chatRoomId){
+//        return userService.
+//    }
 }
