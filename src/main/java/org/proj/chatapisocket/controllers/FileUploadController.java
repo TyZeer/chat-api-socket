@@ -1,5 +1,6 @@
 package org.proj.chatapisocket.controllers;
 
+import org.proj.chatapisocket.dto.FileUrlResponse;
 import org.proj.chatapisocket.services.MinIOService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +37,7 @@ public class FileUploadController {
     @GetMapping("/{filename:.+}")
     public ResponseEntity<?> getFileUrl(@PathVariable String filename){
         try {
-            return ResponseEntity.ok(minioService.generatePresignedUrl(filename));
+            return ResponseEntity.ok(new FileUrlResponse( minioService.generatePresignedUrl(filename)));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
