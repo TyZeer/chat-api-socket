@@ -91,7 +91,7 @@ Response
 ```json
 {
   "name": "Рабочая группа",
-  "memberIds": [1, 2, 3, 4]
+  "member_ids": [1, 2, 3, 4]
 }
 
 ```
