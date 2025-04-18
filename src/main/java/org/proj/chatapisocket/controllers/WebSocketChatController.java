@@ -42,4 +42,8 @@ public class WebSocketChatController {
         return message;
     }
 
+    @MessageMapping("/chat.subscribeToCreations")
+    public void subscribeToChatCreations(Principal principal) {
+    }
+
 }

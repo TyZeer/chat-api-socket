@@ -3,10 +3,7 @@ package org.proj.chatapisocket.controllers;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.proj.chatapisocket.dto.ChatRoomDto;
-import org.proj.chatapisocket.dto.CreateGroupChatDto;
-import org.proj.chatapisocket.dto.CreatePrivateChatDto;
-import org.proj.chatapisocket.dto.UserDto;
+import org.proj.chatapisocket.dto.*;
 import org.proj.chatapisocket.models.ChatRoom;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.ChatRoomRepository;
@@ -45,6 +42,9 @@ public class ChatRoomController {
         try {
             Set<Long> ids = dto.getMemberIds();
             ids.add(currentUser.getId());
+            if (dto.getName() == null || dto.getName().isBlank() || dto.getName().isEmpty()){
+                dto.setName("Новый Чат");
+            }
             chatRoomService.createGroupChat(dto.getName(), ids);
             return new ResponseEntity<Void>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -71,6 +71,8 @@ public class ChatRoomController {
         }
     }
 
+
+
     @PostMapping("/{chatRoomId}/add-user")
     public ChatRoom addUserToGroupChat(@PathVariable Long chatRoomId, @RequestParam Long userId) {
         return chatRoomService.addUserToGroupChat(chatRoomId, userId);
@@ -91,6 +93,20 @@ public class ChatRoomController {
             }
         }
         return null;
+    }
+    @PutMapping("/{chatRoomId}/name")
+    public ResponseEntity<?> updateChatRoomName(
+            @PathVariable Long chatRoomId,
+            @RequestBody UpdateChatRoomNameRequest request) {
+
+        try {
+            chatRoomService.updateChatRoomName(chatRoomId, request.getNewName());
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 //    @GetMapping("/{chatRoom}/users")
 //    public List<UserDto> getUsersByChat(@PathVariable Long chatRoomId){

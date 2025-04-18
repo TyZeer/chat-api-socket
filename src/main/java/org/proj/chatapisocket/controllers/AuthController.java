@@ -42,8 +42,12 @@ public class AuthController {
 
     @Operation(summary = "Регистрация пользователя")
     @PostMapping("/sign-up")
-    public JwtAuthenticationResponse signUp(@Valid @RequestBody SignUpRequest request) {
-        return authenticationService.signUp(request);
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest request) {
+        try {
+            return ResponseEntity.ok(authenticationService.signUp(request));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @Operation(summary = "Авторизация пользователя")

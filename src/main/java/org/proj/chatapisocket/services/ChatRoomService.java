@@ -1,17 +1,21 @@
 package org.proj.chatapisocket.services;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.proj.chatapisocket.dto.ChatCreationNotification;
 import org.proj.chatapisocket.dto.ChatRoomDto;
 import org.proj.chatapisocket.models.ChatRoom;
 import org.proj.chatapisocket.models.User;
 import org.proj.chatapisocket.repos.ChatRoomRepository;
 import org.proj.chatapisocket.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatRoomService {
@@ -21,6 +25,12 @@ public class ChatRoomService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    public ChatRoomService(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
 
     public ChatRoom createGroupChat(String name, Set<Long> memberIds) {
         ChatRoom chatRoom = new ChatRoom();
@@ -34,7 +44,9 @@ public class ChatRoomService {
         }
         chatRoom.setMembers(members);
 
-        return chatRoomRepository.save(chatRoom);
+        ChatRoom createdChat = chatRoomRepository.save(chatRoom);
+        sendChatCreationNotification(createdChat);
+        return createdChat;
     }
 
     public ChatRoom createPrivateChat(String name, Long user1Id, Long user2Id) {
@@ -85,4 +97,32 @@ public class ChatRoomService {
         }
         return myChatRoomDtos;
     }
+    public void updateChatRoomName(Long chatRoomId, String newName) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat room not found with id: " + chatRoomId));
+
+        if (!chatRoom.isGroup()) {
+            throw new IllegalArgumentException("Cannot rename private chat");
+        }
+
+        chatRoom.setName(newName);
+        chatRoomRepository.save(chatRoom);
+    }
+
+    private void sendChatCreationNotification(ChatRoom chatRoom) {
+        ChatCreationNotification notification = new ChatCreationNotification(
+                chatRoom.getId(),
+                chatRoom.getName(),
+                chatRoom.getMembers().stream().map(User::getId).collect(Collectors.toSet())
+        );
+
+        chatRoom.getMembers().forEach(member -> {
+            messagingTemplate.convertAndSendToUser(
+                    member.getUsername(),
+                    "/queue/chat-creations",
+                    notification
+            );
+        });
+    }
 }
+

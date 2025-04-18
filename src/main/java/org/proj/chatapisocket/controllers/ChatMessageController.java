@@ -29,17 +29,19 @@ public class ChatMessageController {
     }
 
     @GetMapping("/{chatRoomId}")
-    public ResponseEntity<Page<ChatMessageDto>> getMessagesByChatRoomId(
+    public ResponseEntity<?> getMessagesByChatRoomId(
             @PathVariable Long chatRoomId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "timestamp,desc") String[] sort) {
-
-        String[] sortParams = sort[0].split(",");
-        Sort orders = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
+        try{
+        Sort orders = Sort.by(Sort.Direction.fromString(sort[1]), sort[0]);
         Pageable pageable = PageRequest.of(page, size, orders);
         Page<ChatMessageDto> result = chatMessageService.getMessagesByChatRoomId(chatRoomId, pageable);
         return ResponseEntity.ok(result);
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @PutMapping("/{messageId}")

@@ -13,7 +13,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class CreateGroupChatDto {
-
     private String name;
     @JsonProperty("member_ids")
     private Set<Long> memberIds;
