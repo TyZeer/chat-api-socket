@@ -1,5 +1,6 @@
 package org.proj.chatapisocket.controllers;
 
+import org.proj.chatapisocket.dto.ChatMessageTopic;
 import org.proj.chatapisocket.dto.ChatMessageWs;
 import org.proj.chatapisocket.dto.NotificationDto;
 import org.proj.chatapisocket.models.ChatMessage;
@@ -44,12 +45,14 @@ public class WebSocketChatController {
             return null;
         }
         ChatMessage savedMessage = chatMessageService.sendMessage(message.getChatId(), userService.getByUsername(message.getSender()), message.getContent(), message.getFileUrl());
-        ChatMessageWs redirMessage = new ChatMessageWs(
+        ChatMessageTopic redirMessage = new ChatMessageTopic(
                 savedMessage.getSender().getUsername(),
                 savedMessage.getContent(),
                 savedMessage.getFileUrl(),
                 savedMessage.getTimestamp(),
-                savedMessage.getChatRoom().getId());
+                savedMessage.getChatRoom().getId(),
+                savedMessage.getId()
+                );
         messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId, redirMessage);
         sendNotificationsToChatParticipants(message.getChatId(), redirMessage.getSender(), savedMessage.getId());
         return message;

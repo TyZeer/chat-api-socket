@@ -18,3 +18,4 @@ public class ChatMessageWs {
     private LocalDateTime timestamp;
     private Long chatId;
 }
+
