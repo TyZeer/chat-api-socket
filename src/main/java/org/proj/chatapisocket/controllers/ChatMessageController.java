@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,12 +35,17 @@ public class ChatMessageController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "timestamp,desc") String[] sort) {
+        try {
+            Sort orders = Sort.by(Sort.Direction.fromString(sort[1]), sort[0]);
+            Pageable pageable = PageRequest.of(page, size, orders);
+            Page<ChatMessageDto> result = chatMessageService.getMessagesByChatRoomId(chatRoomId, pageable);
+            return ResponseEntity.ok(result);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Page.empty());
+        }
 
-        String[] sortParams = sort[0].split(",");
-        Sort orders = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-        Pageable pageable = PageRequest.of(page, size, orders);
-        Page<ChatMessageDto> result = chatMessageService.getMessagesByChatRoomId(chatRoomId, pageable);
-        return ResponseEntity.ok(result);
+
+
     }
 
     @PutMapping("/{messageId}")

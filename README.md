@@ -169,49 +169,33 @@ const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
 
-const socket = new WebSocket("ws:localhost:8081/ws");
+const socket = new WebSocket("ws://localhost:8081/ws");
 const stompClient = Stomp.over(socket);
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-const jwtToken = "eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwiaWQiOjEsImVtYWlsIjoiZW1haWxAZ21haWwuY29tIiwic3ViIjoiVHl6ZXIiLCJpYXQiOjE3NDQzMTE4NzQsImV4cCI6MTc0NTE3NTg3NH0.uWI0TIgCUtXqbQeP4J3czGF-i5xitjsymimpnZdUM9BPcKeltDQkgtgZQrXkXDk4w4ZciMywXeITLnHw3pHPog";
+const jwtToken = "eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwiaWQiOjcsImVtYWlsIjoidGVzdG9mZkBleGFtcGxlLmNvbSIsInN1YiI6IlR5emVycnJyIiwiaWF0IjoxNzQ1NDkzMDc5LCJleHAiOjE3NDYzNTcwNzl9.iuo6JNdi9pbWIzp-usYP3BV1b6ye7UaOuDVmVIQxyVJ2JJrzh2t7px6ZMeqlE3rT5PTmBkVfP5p_xp-aYXrMtA";
 const chatId = 1;
-const sender = "test1";
+const username = "Tyzerrrr"; // Замените на ваше имя пользователя
 
 // Указанный тобой путь к файлу
-const filePath = "C:\\Users\\Dmitriy Pavlov\\OneDrive\\Рабочий стол\\test-photo.jpg";
-
-// Функция загрузки файла в MinIO через API
-// async function uploadFile(filePath) {
-//     const formData = new FormData();
-//     formData.append("file", fs.createReadStream(filePath));
-
-//     try {
-//         const response = await axios.post("http://localhost:8080/api/files/upload", formData, {
-//             headers: {
-//                 ...formData.getHeaders(),
-//                 Authorization: `Bearer ${jwtToken}` // Добавляем токен в заголовки
-//             },
-//         });
-//         return response.data; // URL загруженного файла
-//     } catch (error) {
-//         console.error("Ошибка загрузки файла:", error.response?.data || error.message);
-//         return null;
-//     }
-// }
+const filePath = "C:\\Users\\dpavl\\OneDrive\\Рабочий стол\\Петух.jpg";
 
 stompClient.connect({ Authorization: `Bearer ${jwtToken}` }, async function (frame) {
     console.log("Connected to WebSocket");
 
-    // Загружаем фото и получаем ссылку
-    // const fileUrl = await uploadFile(filePath);
-    // if (!fileUrl) {
-    //     console.error("Не удалось загрузить файл, сообщение не отправлено");
-    //     return;
-    // }
+    // Подписываемся на уведомления для текущего пользователя
+    stompClient.subscribe(`/user/${username}/queue/notifications`, function(message) {
+        console.log("Received notification:", JSON.parse(message.body));
+    });
+
+    //Подписываемся на общие сообщения чата
+    stompClient.subscribe(`/topic/chat/${chatId}`, function(message) {
+        console.log("Received chat message:", JSON.parse(message.body));
+    });
 
     let message = {
-        content: "Ахуеееееееееееееееееееть как же тут дохуя текста, как же меня это все заебало, простоо невозможно блять, эти ебучие слова писать пДЫВЛраФХЩШГГЫВРТЪЩ0РОШФВЫАЭШЩЗО",
+        content: "А сам возьми и почисти базу",
         fileUrl: "", // Используем загруженный URL
         chatId: chatId
     };
@@ -219,12 +203,8 @@ stompClient.connect({ Authorization: `Bearer ${jwtToken}` }, async function (fra
     await delay(2000);
 
     stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
-    console.log("Message sent with image:", "fileUrl");
+    console.log("Message sent with image:", "");
 });
-
-stompClient.onmessage = function (message) {
-    console.log("Received:", message.body);
-};
 
 stompClient.onerror = function (error) {
     console.log("WebSocket Error:", error);

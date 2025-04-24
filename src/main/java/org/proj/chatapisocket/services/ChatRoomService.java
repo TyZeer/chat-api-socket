@@ -1,5 +1,6 @@
 package org.proj.chatapisocket.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.proj.chatapisocket.dto.ChatRoomDto;
 import org.proj.chatapisocket.models.ChatRoom;
 import org.proj.chatapisocket.models.User;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatRoomService {
@@ -84,5 +86,14 @@ public class ChatRoomService {
             myChatRoomDtos.add(chatRoomDto);
         }
         return myChatRoomDtos;
+    }
+
+    public Set<String> getMembersUsernames(Long chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new EntityNotFoundException("ChatRoom not found with id: " + chatRoomId))
+                .getMembers()
+                .stream()
+                .map(User::getUsername)
+                .collect(Collectors.toSet());
     }
 }
