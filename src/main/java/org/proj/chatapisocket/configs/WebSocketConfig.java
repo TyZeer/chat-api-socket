@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -21,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -52,25 +55,29 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 StompHeaderAccessor accessor =
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-                if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
-                    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                        String token = authorizationHeader.substring(7);
-                        String username = jwtUtil.extractUserName(token);
-                        UserDetails userDetails = userService.userDetailsService().loadUserByUsername(username);
-                        if (jwtUtil.isTokenValid(token, userDetails)) {
-                            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                            accessor.setUser(usernamePasswordAuthenticationToken);
-                            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                            accessor.setUser(usernamePasswordAuthenticationToken);
-                        } else {
-                            throw new RuntimeException("Invalid JWT token");
+                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    List<String> authHeader = accessor.getNativeHeader("Authorization");
+
+                    if (authHeader != null && !authHeader.isEmpty()) {
+                        try {
+                            String token = authHeader.get(0).replace("Bearer ", "");
+                            String username = jwtUtil.extractUserName(token);
+                            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(username);
+
+                            if (jwtUtil.isTokenValid(token, userDetails)) {
+                                UsernamePasswordAuthenticationToken auth =
+                                        new UsernamePasswordAuthenticationToken(
+                                                userDetails, null, userDetails.getAuthorities());
+                                accessor.setUser(auth);
+                                SecurityContextHolder.getContext().setAuthentication(auth);
+                            }
+                        } catch (Exception e) {
+                            throw new MessagingException("Authentication failed: " + e.getMessage());
                         }
                     } else {
-                        throw new RuntimeException("Authorization header is missing or invalid");
+                        throw new MessagingException("Authorization header is missing");
                     }
                 }
-
                 return message;
             }
         });
