@@ -18,11 +18,17 @@ public class FileUploadController {
         this.minioService = minioService;
     }
 
+    @CrossOrigin("*")
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        String fileUrl = minioService.uploadFile(file);
-        String[] mass = fileUrl.split("/");
-        return ResponseEntity.ok(mass[mass.length-1]);
+        try {
+            String fileUrl = minioService.uploadFile(file);
+            String[] mass = fileUrl.split("/");
+            return ResponseEntity.ok(mass[mass.length-1]);
+        }catch (Exception exception){
+            return  ResponseEntity.badRequest().body("Ошибка загрузки файла " + exception.getMessage());
+        }
+
     }
 //    @GetMapping("/{filename:.+}")
 //    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
