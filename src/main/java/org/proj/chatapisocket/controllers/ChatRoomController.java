@@ -72,8 +72,10 @@ public class ChatRoomController {
     }
 
     @PostMapping("/{chatRoomId}/add-user")
-    public ChatRoom addUserToGroupChat(@PathVariable Long chatRoomId, @RequestParam Long userId) {
-        return chatRoomService.addUserToGroupChat(chatRoomId, userId);
+    public ChatRoomDto addUserToGroupChat(@PathVariable Long chatRoomId, @RequestParam Long userId) {
+        ChatRoom room = chatRoomService.addUserToGroupChat(chatRoomId, userId);
+        String type = room.isGroup() ? "GROUP" : "PRIVATE";
+        return new ChatRoomDto(room.getId().toString(), room.getName(), type);
     }
     @GetMapping("/my")
     public List<ChatRoomDto> getChatRooms(HttpServletRequest request) {

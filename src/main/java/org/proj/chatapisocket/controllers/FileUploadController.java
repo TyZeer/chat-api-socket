@@ -1,5 +1,6 @@
 package org.proj.chatapisocket.controllers;
 
+import org.proj.chatapisocket.dto.FileNameDto;
 import org.proj.chatapisocket.dto.FileUrlResponse;
 import org.proj.chatapisocket.services.MinIOService;
 import org.springframework.core.io.Resource;
@@ -19,10 +20,10 @@ public class FileUploadController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileUrl = minioService.uploadFile(file);
         String[] mass = fileUrl.split("/");
-        return ResponseEntity.ok(mass[mass.length-1]);
+        return ResponseEntity.ok(new FileNameDto(mass[mass.length-1]));
     }
 //    @GetMapping("/{filename:.+}")
 //    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
