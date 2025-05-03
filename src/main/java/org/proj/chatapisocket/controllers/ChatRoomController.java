@@ -47,7 +47,7 @@ public class ChatRoomController {
             ids.add(currentUser.getId());
             chatRoomService.createGroupChat(dto.getName(), ids);
             return new ResponseEntity<Void>(HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -66,14 +66,19 @@ public class ChatRoomController {
                     dto.getUserId()
             );
             return new ResponseEntity<Void>(HttpStatus.OK);
-        } catch (IllegalStateException | IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/{chatRoomId}/add-user")
-    public ChatRoom addUserToGroupChat(@PathVariable Long chatRoomId, @RequestParam Long userId) {
-        return chatRoomService.addUserToGroupChat(chatRoomId, userId);
+    public ResponseEntity<?> addUserToGroupChat(@PathVariable Long chatRoomId, @RequestParam Long userId) {
+        try {
+            return ResponseEntity.ok(chatRoomService.addUserToGroupChat(chatRoomId, userId));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
     @GetMapping("/my")
     public List<ChatRoomDto> getChatRooms(HttpServletRequest request) {

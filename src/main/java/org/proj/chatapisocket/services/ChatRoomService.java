@@ -83,6 +83,8 @@ public class ChatRoomService {
             }
             else
                 chatRoomDto.type = "PRIVATE";
+            Set<String> membersUsernames = getMembersUsernames(chatRoom.getId());
+            chatRoomDto.setUsers(membersUsernames);
             myChatRoomDtos.add(chatRoomDto);
         }
         return myChatRoomDtos;
